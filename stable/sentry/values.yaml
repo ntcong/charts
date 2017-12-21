@@ -39,9 +39,14 @@ worker:
       cpu: 100m
       memory: 100Mi
 
+# XXX sentrySecret - when left empty this is randomly generated
+sentrySecret:
+
 # Initial admin user to create
+# no password issues random; any helm upgrade replaces it
 user:
   email: admin@sentry.local
+  password:
 
 # BYO Email server
 # TODO: Add exim4 template
@@ -104,10 +109,32 @@ ingress:
   #   - secretName: sentry.local-tls
   #     hosts:
   #       - sentry.local
+  #
+  ## if using tls_secret, enumerate the cert hostnames here
+  tls_hosts: []
+
+## tls_secret allows a cert to be used for ingress
+#  consider putting this w/ other secrets in seperate encrypted values file
+# tls_secret:
+#    key:  |
+#    ---BEGIN
+#    ...
+#    ---END
+#    crt: |
+#    ...
 
 # TODO: add support for plugins https://docs.sentry.io/server/plugins/
 
+## allow these chart requirements to be omitted;
+## and replaced with external services (using remoteHost)
+required_backend:
+  redis: true
+  postgresql: true
+
 postgresql:
+  ## to use remoteHost, set this required_backend to false
+  # remoteHost:
+  # postgresPassword:
   postgresDatabase: sentry
   postgresUser: sentry
   imageTag: "9.5"
@@ -115,5 +142,8 @@ postgresql:
     enabled: true
 
 redis:
+  ## to use remoteHost, set this required_backend to false
+  # remoteHost:
+  # redisPassowrd:
   persistence:
     enabled: true
